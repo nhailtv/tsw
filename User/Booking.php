@@ -1,58 +1,50 @@
+<?php
+if (isset($_GET['CinemaID']) && isset($_GET['MovieID'])) {
+    $cinemaID = $_GET['CinemaID'];
+    $movieID = $_GET['MovieID'];
+
+    // Include database connection
+    include 'DBConnect.php';
+
+    // Query to retrieve cinema name
+    $cinemaQuery = "SELECT CinemaName FROM cinema WHERE CinemaID = $cinemaID";
+    $cinemaResult = $conn->query($cinemaQuery);
+    if ($cinemaResult->num_rows > 0) {
+        $cinemaRow = $cinemaResult->fetch_assoc();
+        $cinemaName = $cinemaRow['CinemaName'];
+    } else {
+        $cinemaName = "Cinema Not Found";
+    }
+
+    // Query to retrieve showtimes for the selected movie at the chosen cinema
+    $showtimeQuery = "SELECT s.* FROM showtime s
+                     WHERE s.MovieID = $movieID
+                     AND s.RoomID IN (SELECT RoomID FROM room WHERE CinemaID = $cinemaID)";
+
+    $result = $conn->query($showtimeQuery);
+?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking</title>
-    <?php include 'Head.php';?>
-    
+    <title>Showtimes at <?php echo $cinemaName; ?></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
-
 <body>
     <div class="container">
-        <?php
-        include 'DBConnect.php';
-        if (isset($_GET['MovieID'])) {
-            $MovieID = $_GET['MovieID'];}
-        else{
-            $MovieID = "";
-        }
-      
-
-        if($MovieID != ""){
-
-        
-        $sql = "Select * from showtime where MovieID = $MovieID";
-        $result = $conn->query($sql);
-
-        if ($result !== false && $result->num_rows > 0) :
-            while ($row = $result->fetch_assoc()) :
-        ?>
-                <div class="showtime-card card mb-4" data-showtime="<?php echo $row['ShowtimeDateTime']; ?>">
-                    <div class="card-body">  
-                    <button type="button" class="btn btn-info"><?php echo $row['ShowtimeDateTime']; ?></button>
-                    </div>
-                </div>
-            <?php
-            endwhile;
-        else :
-            ?>
-            <p>No showtimes found for this movie.</p>
-        <?php
-        endif;
-
-        $conn->close();
-        }else{
-            ?>
-                <h1>Không có phim được chọn.</h1>
-            <?php 
-        }
-        ?>
+        <h1>Showtimes at <?php echo $cinemaName; ?></h1>
+        <ul class="list-group">
+            <?php while ($row = $result->fetch_assoc()): ?>
+                <li class="list-group-item">Showtime: <?php echo $row['ShowtimeDateTime']; ?></li>
+            <?php endwhile; ?>
+        </ul>
     </div>
-
-    <!-- Date buttons for filtering showtimes -->
- 
 </body>
-
 </html>
+<?php
+    $conn->close();
+} else {
+    echo "CinemaID or MovieID not provided in the URL.";
+}
+?>

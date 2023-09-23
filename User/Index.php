@@ -39,7 +39,8 @@
                 <h6 class="price">
                     <span class="text-success rounded px-2 fs-5">Tác giả: <?php echo $row['Author']; ?></span>
                 </h6>
-                <a href="CinemaChoosing.php?MovieID=<?php echo $row['MovieID']; ?>" class="btn btn-success">Đặt vé ngay</a>
+                <a href="CinemaChoosing.php?MovieID=<?php echo $row['MovieID']; ?>&MovieName=<?php echo urlencode($row['Title']); ?>" class="btn btn-success">Đặt vé ngay</a>
+
             </div>
         </div>
         <?php
